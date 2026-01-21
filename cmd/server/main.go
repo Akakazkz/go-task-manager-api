@@ -5,12 +5,17 @@ import (
 	"net/http"
 
 	"github.com/Akakazkz/go-task-manager-api/internal/handler"
+	"github.com/Akakazkz/go-task-manager-api/internal/service"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
+	userService := service.NewUserService()
+	userHandler := handler.NewUserHandler(userService)
+
 	mux.HandleFunc("/health", handler.Health)
+	mux.HandleFunc("/users", userHandler.Create)
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -18,7 +23,5 @@ func main() {
 	}
 
 	log.Println("starting server on :8080")
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(server.ListenAndServe())
 }
