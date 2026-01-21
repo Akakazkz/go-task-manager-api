@@ -28,8 +28,14 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userService.Create(req.Email, req.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		switch err {
+		case service.ErrInvalidInput:
+			http.Error(w, "invalid email or password", http.StatusBadRequest)
+		case service.ErrUserExists:
+			http.Error(w, "user already exists", http.StatusConflict)
+		default:
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+		}
 	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)

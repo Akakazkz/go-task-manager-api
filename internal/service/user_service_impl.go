@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"strings"
 	"time"
 
@@ -25,11 +24,11 @@ func (s *userService) Create(email, password string) (*model.User, error) {
 	password = strings.TrimSpace(password)
 
 	if email == "" || password == "" {
-		return nil, errors.New("email and password are required")
+		return nil, ErrInvalidInput
 	}
 
 	if _, exists := s.users[email]; exists {
-		return nil, errors.New("user already exists")
+		return nil, ErrUserExists
 	}
 
 	user := &model.User{
