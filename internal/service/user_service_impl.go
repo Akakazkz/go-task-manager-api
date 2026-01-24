@@ -5,18 +5,15 @@ import (
 	"time"
 
 	"github.com/Akakazkz/go-task-manager-api/internal/model"
+	"github.com/Akakazkz/go-task-manager-api/internal/repository"
 )
 
 type userService struct {
-	users  map[string]*model.User
-	nextID int64
+	repo repository.UserRepository
 }
 
-func NewUserService() UserService {
-	return &userService{
-		users:  make(map[string]*model.User),
-		nextID: 1,
-	}
+func NewUserService(repo repository.UserRepository) UserService {
+	return &userService{repo: repo}
 }
 
 func (s *userService) Create(email, password string) (*model.User, error) {
@@ -27,20 +24,18 @@ func (s *userService) Create(email, password string) (*model.User, error) {
 		return nil, ErrInvalidInput
 	}
 
-	if _, exists := s.users[email]; exists {
+	if s.repo.ExistsByEmail(email) {
 		return nil, ErrUserExists
 	}
-
 	user := &model.User{
-		ID:        s.nextID,
 		Email:     email,
 		Password:  password,
 		Role:      model.RoleUser,
 		CreatedAt: time.Now(),
 	}
 
-	s.users[email] = user
-	s.nextID++
-
+	if err := s.repo.Create(user); err != nil {
+		return nil, err
+	}
 	return user, nil
 }

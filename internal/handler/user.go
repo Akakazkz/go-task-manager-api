@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/Akakazkz/go-task-manager-api/internal/service"
@@ -28,6 +29,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userService.Create(req.Email, req.Password)
 	if err != nil {
+		log.Println("create user error:", err)
 		switch err {
 		case service.ErrInvalidInput:
 			http.Error(w, "invalid email or password", http.StatusBadRequest)
@@ -36,6 +38,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 		}
+		return
 	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
