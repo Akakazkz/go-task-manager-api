@@ -28,6 +28,7 @@ func main() {
 
 	mux.HandleFunc("/health", handler.Health)
 	mux.HandleFunc("/users", userHandler.Handle)
+	mux.HandleFunc("/login", userHandler.Login)
 
 	server := &http.Server{
 		Addr:    ":8080",

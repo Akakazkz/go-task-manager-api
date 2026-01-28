@@ -50,6 +50,29 @@ func (r *PostgresUserRepository) ExistsByEmail(email string) bool {
 	return exists
 }
 
+func (r *PostgresUserRepository) GetByEmail(email string) (*model.User, error) {
+	var u model.User
+
+	query := `
+		SELECT id, email, password, role, created_at
+		FROM users
+		WHERE email = $1
+	`
+
+	err := r.db.QueryRow(query, email).Scan(
+		&u.ID,
+		&u.Email,
+		&u.Password,
+		&u.Role,
+		&u.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
 func (r *PostgresUserRepository) Create(user *model.User) error {
 	query := `
 		INSERT INTO users (email, password, role, created_at)

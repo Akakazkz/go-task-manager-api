@@ -20,6 +20,24 @@ func (s *userService) List() ([]*model.User, error) {
 	return s.repo.List()
 }
 
+func (s *userService) Login(email, password string) (string, error) {
+	user, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return "", ErrInvalidCredentials
+	}
+
+	if err := comparePassword(user.Password, password); err != nil {
+		return "", ErrInvalidCredentials
+	}
+
+	token, err := generateJWT(user.ID, user.Role)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
 func (s *userService) Create(email, password string) (*model.User, error) {
 	email = strings.TrimSpace(email)
 	password = strings.TrimSpace(password)
