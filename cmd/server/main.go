@@ -27,7 +27,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", handler.Health)
-	mux.HandleFunc("/users", userHandler.Create)
+	mux.HandleFunc("/users", userHandler.Handle)
 
 	server := &http.Server{
 		Addr:    ":8080",

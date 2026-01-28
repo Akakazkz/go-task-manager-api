@@ -14,6 +14,35 @@ func NewPostgresUserRepository(db *sql.DB) UserRepository {
 	return &PostgresUserRepository{db: db}
 }
 
+func (r *PostgresUserRepository) List() ([]*model.User, error) {
+	rows, err := r.db.Query(`
+		SELECT id, email, password, role, created_at
+		FROM users
+		ORDER BY id
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*model.User
+
+	for rows.Next() {
+		var u model.User
+		if err := rows.Scan(
+			&u.ID,
+			&u.Email,
+			&u.Password,
+			&u.Role,
+			&u.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &u)
+	}
+	return users, nil
+}
+
 func (r *PostgresUserRepository) ExistsByEmail(email string) bool {
 	var exists bool
 	query := `SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)`

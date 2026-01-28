@@ -16,6 +16,10 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{repo: repo}
 }
 
+func (s *userService) List() ([]*model.User, error) {
+	return s.repo.List()
+}
+
 func (s *userService) Create(email, password string) (*model.User, error) {
 	email = strings.TrimSpace(email)
 	password = strings.TrimSpace(password)
