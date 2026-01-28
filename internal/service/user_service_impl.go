@@ -31,9 +31,14 @@ func (s *userService) Create(email, password string) (*model.User, error) {
 	if s.repo.ExistsByEmail(email) {
 		return nil, ErrUserExists
 	}
+
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		return nil, err
+	}
 	user := &model.User{
 		Email:     email,
-		Password:  password,
+		Password:  hashedPassword,
 		Role:      model.RoleUser,
 		CreatedAt: time.Now(),
 	}
